@@ -1,12 +1,12 @@
-import type { Application, Request, Response } from "express";
+import type { Application, NextFunction, Request, Response } from "express";
 
+import { STATUS_CODES } from "@ahammedijas/fleet-os-shared";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import { StatusCodes } from "http-status-codes";
 
-import { errorHandler, notFoundHandler } from "./middlewares/error-handler.middleware";
-import limiter from "./middlewares/rate-limit.middleware";
+import logger from "./config/logger";
+import { errorHandler, limiter, notFoundHandler } from "./infrastructure/middlewares";
 
 export default function createApp(): Application {
   const app = express();
@@ -17,8 +17,13 @@ export default function createApp(): Application {
 
   app.use(limiter);
 
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    logger.debug(`${req.method} ${req.url}`);
+    next();
+  });
+
   app.get("/healthz", (_req: Request, res: Response) => {
-    res.status(StatusCodes.OK).json({ status: "ok" });
+    res.status(STATUS_CODES.OK).json({ status: "ok" });
   });
 
   app.use(notFoundHandler);
