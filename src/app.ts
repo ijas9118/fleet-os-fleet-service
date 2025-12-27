@@ -6,7 +6,7 @@ import express from "express";
 import helmet from "helmet";
 
 import logger from "./config/logger";
-import { errorHandler, limiter, notFoundHandler } from "./infrastructure/middlewares";
+import { errorHandler, notFoundHandler } from "./infrastructure/middlewares";
 
 export default function createApp(): Application {
   const app = express();
@@ -14,8 +14,6 @@ export default function createApp(): Application {
   app.use(helmet());
   app.use(cors());
   app.use(express.json());
-
-  app.use(limiter);
 
   app.use((req: Request, _res: Response, next: NextFunction) => {
     logger.debug(`${req.method} ${req.url}`);
@@ -25,6 +23,13 @@ export default function createApp(): Application {
   app.get("/healthz", (_req: Request, res: Response) => {
     res.status(STATUS_CODES.OK).json({ status: "ok" });
   });
+
+  // Placeholder for Fleet Routes
+  const fleetRouter = express.Router();
+  fleetRouter.get("/", (_req, res) => {
+    res.json({ message: "Fleet Service API v1" });
+  });
+  app.use("/api/v1/fleet", fleetRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
