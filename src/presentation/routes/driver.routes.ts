@@ -9,10 +9,6 @@ import { validate } from "../middlewares";
 export function buildDriverRoutes(controller: DriverController): Router {
   const router = Router();
 
-  /**
-   * POST /complete-onboarding
-   * Complete driver onboarding with additional details
-   */
   router.post(
     "/complete-onboarding",
     validate(CompleteDriverOnboardingSchema),

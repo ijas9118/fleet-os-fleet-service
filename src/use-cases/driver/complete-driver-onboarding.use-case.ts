@@ -1,6 +1,12 @@
 import type { Driver } from "@/domain/entities";
 import type { IDriverRepository } from "@/infrastructure/database/repositories/driver.repository.interface";
 
+/**
+ * Use Case: Complete Driver Onboarding
+ * Completes the driver onboarding process by adding driver details
+ */
+import { AuthServiceClient } from "@/infrastructure/http/auth-service.client";
+
 export interface CompleteDriverOnboardingInput {
   userId: string;
   licenseNumber: string;
@@ -20,12 +26,12 @@ export interface CompleteDriverOnboardingInput {
   };
 }
 
-/**
- * Use Case: Complete Driver Onboarding
- * Completes the driver onboarding process by adding driver details
- */
 export class CompleteDriverOnboardingUseCase {
-  constructor(private _driverRepository: IDriverRepository) {}
+  private _authServiceClient: AuthServiceClient;
+
+  constructor(private _driverRepository: IDriverRepository) {
+    this._authServiceClient = new AuthServiceClient();
+  }
 
   async execute(input: CompleteDriverOnboardingInput): Promise<Driver> {
     // Find existing driver
@@ -53,6 +59,9 @@ export class CompleteDriverOnboardingUseCase {
     if (!updated) {
       throw new Error("Failed to update driver information.");
     }
+
+    // Notify Auth Service
+    await this._authServiceClient.markUserOnboarded(input.userId);
 
     return updated;
   }

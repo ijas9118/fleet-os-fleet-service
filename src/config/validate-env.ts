@@ -13,6 +13,8 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string(),
   REDIS_URL: z.string(),
   KAFKA_BROKER: z.string().default("kafka.infrastructure.svc.cluster.local:9092"),
+  AUTH_SERVICE_URL: z.string().default("http://fleet-os-auth-service:3001"),
+  AUTH_SERVICE_API_KEY: z.string().default("dev-internal-key"),
 });
 
 export type env = z.infer<typeof EnvSchema>;
