@@ -6,10 +6,14 @@ import express from "express";
 import helmet from "helmet";
 
 import logger from "./config/logger";
-import { errorHandler, notFoundHandler } from "./infrastructure/middlewares";
+import { buildContainer } from "./di/container";
+import { errorHandler, notFoundHandler } from "./presentation/middlewares";
+import { buildRoutes } from "./presentation/routes";
 
 export default function createApp(): Application {
   const app = express();
+
+  const container = buildContainer();
 
   app.use(helmet());
   app.use(cors());
@@ -24,12 +28,8 @@ export default function createApp(): Application {
     res.status(STATUS_CODES.OK).json({ status: "ok" });
   });
 
-  // Placeholder for Fleet Routes
-  const fleetRouter = express.Router();
-  fleetRouter.get("/", (_req, res) => {
-    res.json({ message: "Fleet Service API v1" });
-  });
-  app.use("/api/v1/fleet", fleetRouter);
+  // API Routes
+  app.use("/api/v1/fleet", buildRoutes(container));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

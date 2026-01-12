@@ -4,8 +4,7 @@ import { STATUS_CODES } from "@ahammedijas/fleet-os-shared";
 
 import logger from "@/config/logger";
 import env from "@/config/validate-env";
-
-import { mapToHttpError } from "../utils/map-to-http-error";
+import { mapToHttpError } from "@/infrastructure/utils/map-to-http-error";
 
 export function notFoundHandler(req: Request, res: Response, _next: NextFunction) {
   logger.warn(`404 Not Found: ${req.method} ${req.originalUrl}`);

@@ -3,9 +3,9 @@ import type { NextFunction, Request, Response } from "express";
 import { STATUS_CODES, UserRole } from "@ahammedijas/fleet-os-shared";
 import jwt from "jsonwebtoken";
 
-import logger from "@/config/logger";
+import type { JWTPayload } from "@/infrastructure/types";
 
-import type { JWTPayload } from "../types";
+import logger from "@/config/logger";
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;

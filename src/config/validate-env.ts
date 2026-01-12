@@ -12,6 +12,7 @@ const EnvSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]),
   DATABASE_URL: z.string(),
   REDIS_URL: z.string(),
+  KAFKA_BROKER: z.string().default("kafka.infrastructure.svc.cluster.local:9092"),
 });
 
 export type env = z.infer<typeof EnvSchema>;
