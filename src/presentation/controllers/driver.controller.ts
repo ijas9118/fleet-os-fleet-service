@@ -18,9 +18,23 @@ export class DriverController {
    */
   completeOnboarding = async (req: Request, res: Response): Promise<void> => {
     try {
-      const data: CompleteDriverOnboardingDTO = req.body;
+      const data: Omit<CompleteDriverOnboardingDTO, "userId"> = req.body;
 
-      const driver = await this._completeOnboardingUseCase.execute(data);
+      // Get userId from authenticated request
+      const userId = req.user?.id;
+
+      if (!userId) {
+        res.status(STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "User not authenticated",
+        });
+        return;
+      }
+
+      const driver = await this._completeOnboardingUseCase.execute({
+        userId,
+        ...data,
+      });
 
       res.status(STATUS_CODES.OK).json({
         success: true,

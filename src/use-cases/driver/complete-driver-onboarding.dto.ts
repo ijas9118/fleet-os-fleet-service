@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const CompleteDriverOnboardingSchema = z.object({
-  userId: z.string().min(1, "User ID is required"),
   licenseNumber: z.string().min(1, "License number is required"),
   licenseExpiryDate: z.coerce.date().refine(
     date => date > new Date(),
