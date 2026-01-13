@@ -21,7 +21,7 @@ export class AssignVehicleUseCase {
     }
 
     // Check if driver exists
-    const driver = await this._driverRepo.findById(dto.driverId);
+    const driver = await this._driverRepo.findByUserId(dto.driverId);
 
     if (!driver) {
       throw new Error("Driver not found");
