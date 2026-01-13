@@ -3,18 +3,18 @@ import type { IVehicleRepository } from "@/infrastructure/database/repositories/
 
 import type { ListVehiclesDTO } from "./list-vehicles.dto";
 
-export interface ListVehiclesResult {
-  vehicles: Vehicle[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
 export class ListVehiclesUseCase {
   constructor(private _vehicleRepo: IVehicleRepository) {}
 
-  async execute(dto: ListVehiclesDTO): Promise<ListVehiclesResult> {
+  async execute(dto: ListVehiclesDTO): Promise<{
+    data: Vehicle[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
     const page = dto.page || 1;
     const limit = dto.limit || 10;
 
@@ -30,11 +30,13 @@ export class ListVehiclesUseCase {
     });
 
     return {
-      vehicles,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      data: vehicles,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 }

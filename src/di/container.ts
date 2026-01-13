@@ -6,7 +6,11 @@ import { MaintenanceController } from "@/presentation/controllers/maintenance.co
 import { VehicleController } from "@/presentation/controllers/vehicle.controller";
 import { CompleteDriverOnboardingUseCase } from "@/use-cases/driver/complete-driver-onboarding.use-case";
 import { CompleteMaintenanceUseCase } from "@/use-cases/maintenance/complete-maintenance";
+import { GetMaintenanceByIdUseCase } from "@/use-cases/maintenance/get-maintenance-by-id";
+import { GetVehicleMaintenanceHistoryUseCase } from "@/use-cases/maintenance/get-vehicle-maintenance-history";
+import { ListMaintenanceUseCase } from "@/use-cases/maintenance/list-maintenance";
 import { ScheduleMaintenanceUseCase } from "@/use-cases/maintenance/schedule-maintenance";
+import { UpdateMaintenanceStatusUseCase } from "@/use-cases/maintenance/update-maintenance-status";
 import { ArchiveVehicleUseCase } from "@/use-cases/vehicle/archive-vehicle";
 import { AssignVehicleUseCase } from "@/use-cases/vehicle/assign-vehicle";
 import { CreateVehicleUseCase } from "@/use-cases/vehicle/create-vehicle";
@@ -38,6 +42,10 @@ export function buildContainer() {
   // --- Maintenance Use Cases ---
   const scheduleMaintenanceUC = new ScheduleMaintenanceUseCase(maintenanceRepo, vehicleRepo);
   const completeMaintenanceUC = new CompleteMaintenanceUseCase(maintenanceRepo, vehicleRepo);
+  const listMaintenanceUC = new ListMaintenanceUseCase(maintenanceRepo);
+  const getMaintenanceByIdUC = new GetMaintenanceByIdUseCase(maintenanceRepo);
+  const getVehicleMaintenanceHistoryUC = new GetVehicleMaintenanceHistoryUseCase(maintenanceRepo);
+  const updateMaintenanceStatusUC = new UpdateMaintenanceStatusUseCase(maintenanceRepo);
 
   // --- Controllers ---
   const driverController = new DriverController(completeDriverOnboardingUC);
@@ -54,7 +62,10 @@ export function buildContainer() {
   const maintenanceController = new MaintenanceController(
     scheduleMaintenanceUC,
     completeMaintenanceUC,
-    maintenanceRepo,
+    listMaintenanceUC,
+    getMaintenanceByIdUC,
+    getVehicleMaintenanceHistoryUC,
+    updateMaintenanceStatusUC,
   );
 
   return {

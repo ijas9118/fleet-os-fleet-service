@@ -2,15 +2,21 @@ import type { Request, Response } from "express";
 
 import { STATUS_CODES } from "@ahammedijas/fleet-os-shared";
 
-import type { IMaintenanceRepository } from "@/infrastructure/database/repositories/maintenance.repository.interface";
 import type { CompleteMaintenanceUseCase } from "@/use-cases/maintenance/complete-maintenance";
+import type { GetMaintenanceByIdUseCase } from "@/use-cases/maintenance/get-maintenance-by-id";
+import type { GetVehicleMaintenanceHistoryUseCase } from "@/use-cases/maintenance/get-vehicle-maintenance-history";
+import type { ListMaintenanceUseCase } from "@/use-cases/maintenance/list-maintenance";
 import type { ScheduleMaintenanceUseCase } from "@/use-cases/maintenance/schedule-maintenance";
+import type { UpdateMaintenanceStatusUseCase } from "@/use-cases/maintenance/update-maintenance-status";
 
 export class MaintenanceController {
   constructor(
     private _scheduleMaintenanceUC: ScheduleMaintenanceUseCase,
     private _completeMaintenanceUC: CompleteMaintenanceUseCase,
-    private _maintenanceRepo: IMaintenanceRepository,
+    private _listMaintenanceUC: ListMaintenanceUseCase,
+    private _getMaintenanceByIdUC: GetMaintenanceByIdUseCase,
+    private _getVehicleMaintenanceHistoryUC: GetVehicleMaintenanceHistoryUseCase,
+    private _updateMaintenanceStatusUC: UpdateMaintenanceStatusUseCase,
   ) {}
 
   scheduleMaintenance = async (req: Request, res: Response): Promise<void> => {
@@ -85,7 +91,7 @@ export class MaintenanceController {
       const vehicleId = req.query.vehicleId as string;
       const status = req.query.status as string;
 
-      const result = await this._maintenanceRepo.findAll({
+      const result = await this._listMaintenanceUC.execute({
         tenantId,
         vehicleId,
         status,
@@ -96,13 +102,7 @@ export class MaintenanceController {
       res.status(STATUS_CODES.OK).json({
         success: true,
         message: "Maintenance records retrieved successfully",
-        data: {
-          records: result.records,
-          total: result.total,
-          page,
-          limit,
-          totalPages: Math.ceil(result.total / limit),
-        },
+        data: result,
       });
     }
     catch (error: any) {
@@ -126,7 +126,10 @@ export class MaintenanceController {
         return;
       }
 
-      const maintenance = await this._maintenanceRepo.findById(id as string, tenantId);
+      const maintenance = await this._getMaintenanceByIdUC.execute({
+        maintenanceId: id as string,
+        tenantId,
+      });
 
       if (!maintenance) {
         res.status(STATUS_CODES.NOT_FOUND).json({
@@ -163,7 +166,10 @@ export class MaintenanceController {
         return;
       }
 
-      const records = await this._maintenanceRepo.findByVehicleId(vehicleId as string, tenantId);
+      const records = await this._getVehicleMaintenanceHistoryUC.execute({
+        vehicleId: vehicleId as string,
+        tenantId,
+      });
 
       res.status(STATUS_CODES.OK).json({
         success: true,
@@ -175,6 +181,48 @@ export class MaintenanceController {
       res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
         message: error.message || "Failed to retrieve vehicle maintenance history",
+      });
+    }
+  };
+
+  updateMaintenanceStatus = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const tenantId = req.user?.tenantId;
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!tenantId) {
+        res.status(STATUS_CODES.FORBIDDEN).json({
+          success: false,
+          message: "Tenant ID not found in request",
+        });
+        return;
+      }
+
+      if (!status) {
+        res.status(STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Status is required",
+        });
+        return;
+      }
+
+      const maintenance = await this._updateMaintenanceStatusUC.execute({
+        maintenanceId: id as string,
+        tenantId,
+        status,
+      });
+
+      res.status(STATUS_CODES.OK).json({
+        success: true,
+        message: "Maintenance status updated successfully",
+        data: maintenance,
+      });
+    }
+    catch (error: any) {
+      res.status(STATUS_CODES.BAD_REQUEST).json({
+        success: false,
+        message: error.message || "Failed to update maintenance status",
       });
     }
   };

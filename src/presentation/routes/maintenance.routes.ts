@@ -16,6 +16,7 @@ export function buildMaintenanceRoutes(controller: MaintenanceController): Route
   router.patch("/:id/complete", validate(CompleteMaintenanceSchema), controller.completeMaintenance);
   router.get("/", controller.listMaintenance);
   router.get("/:id", controller.getMaintenanceById);
+  router.patch("/:id/status", controller.updateMaintenanceStatus);
 
   return router;
 }
